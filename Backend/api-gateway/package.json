@@ -1,0 +1,24 @@
+{
+  "name": "api-gateway",
+  "version": "1.0.0",
+  "description": "project's api gateway for the project",
+  "keywords": [
+    "api",
+    "gateway",
+    "rate",
+    "limiter",
+    "cors"
+  ],
+  "license": "ISC",
+  "author": "Oussama Tailba",
+  "type": "commonjs",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "tsc && node dist/index.js",
+    "dev": "nodemon"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1"
+  }
+}
