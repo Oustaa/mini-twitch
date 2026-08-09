@@ -1,21 +1,16 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
-	"github.com/lpernett/godotenv"
 	"twitch.ousta.dev/auth/internal/config"
 	"twitch.ousta.dev/auth/internal/db"
 	"twitch.ousta.dev/auth/internal/routes"
 )
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
 	cfg, err := config.GetDBConfigFromEnv()
 	if err != nil {
 		log.Fatalf("Error getting configs: %v\n", err)
@@ -29,9 +24,11 @@ func main() {
 	router := routes.GetRouter(database)
 
 	server := http.Server{
-		Addr:    ":9000",
+		Addr:    ":3000",
 		Handler: router,
 	}
+
+	fmt.Println("App listing on port 3000")
 
 	err = server.ListenAndServe()
 	if err != nil {

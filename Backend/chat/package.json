@@ -1,0 +1,25 @@
+{
+  "name": "min-twitch-chat-service",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [
+    "chat",
+    "system",
+    "nodejs",
+    "typescript",
+    "websocket"
+  ],
+  "license": "ISC",
+  "author": "Oussama Tailba",
+  "type": "commonjs",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}

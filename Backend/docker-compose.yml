@@ -1,0 +1,17 @@
+services:
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "4001:3000"
+    volumes:
+      - ./api-gateway:/app
+    networks:
+      - backend
+      - frontend
+
+include:
+  - auth/docker-compose.yml
+
+networks:
+  backend:
+  frontend:

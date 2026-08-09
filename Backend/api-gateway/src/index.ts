@@ -1,10 +1,11 @@
 import dotenv from "dotenv";
 import express from "express";
+import cors from "cors";
 import RateLimiter from "./utils/rateLimiter";
 
 dotenv.config();
 
-const PORT = process.env.PORT || 9001;
+const PORT = process.env.PORT || 3000;
 
 const app = express();
 
@@ -21,14 +22,18 @@ const app = express();
 //   },
 // ];
 
+app.use(
+  cors({
+    origin: "*",
+  }),
+);
+
 // limiters
 const AuthLimiter = new RateLimiter("Hours", 10, 2);
 
 app.use((req, res, next) => {
   if (req.url.startsWith("/auth")) {
-    if (AuthLimiter.check(req)) {
-      console.log("PASSSED");
-    } else {
+    if (!AuthLimiter.check(req)) {
       res.status(429).json({ error: "too many request" });
       console.log("SHOULD BE BLOCKED");
       return;
@@ -38,7 +43,18 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get(/.*/, (req, res) => {
+app.get("/users", (_, res) => {
+  res.json({
+    users: [
+      { name: "Younnes tailba", age: 29 },
+      { name: "Oussama tailba", age: 28 },
+      { name: "Khalid tailba", age: 18 },
+      { name: "Abde Eladim tailba", age: 23 },
+    ],
+  });
+});
+
+app.get(/.*/, (_, res) => {
   res.send("Hello there");
 });
 
