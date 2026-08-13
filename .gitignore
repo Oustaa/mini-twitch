@@ -278,3 +278,6 @@ dist
 .svelte-kit
 
 # End of https://www.toptal.com/developers/gitignore/api/node,go,goland
+
+Backend/storage/store/*
+Backend/auth/tmp/*

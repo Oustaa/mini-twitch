@@ -1,0 +1,27 @@
+{
+  "name": "storage",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [
+    "storage",
+    "streams",
+    "fs",
+    "nodejs"
+  ],
+  "license": "ISC",
+  "author": "Oussama Tailba",
+  "type": "commonjs",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "nodemon": "^3.1.14",
+    "ts-node": "^10.9.2"
+  }
+}

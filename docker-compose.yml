@@ -10,6 +10,11 @@ services:
       - /app/node_modules
     networks:
       - frontend
+    healthcheck:
+      test: ["CMD", "curl", "api-gateway/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
 
 include:
   - Backend/docker-compose.yml

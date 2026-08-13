@@ -29,8 +29,12 @@ services:
       - backend
 
   auth:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     env_file: .env
+    volumes:
+      - ./:/app
     depends_on:
       auth-db:
         condition: service_healthy

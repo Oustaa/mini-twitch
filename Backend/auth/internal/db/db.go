@@ -8,6 +8,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"twitch.ousta.dev/auth/internal/config"
+	"twitch.ousta.dev/auth/internal/models"
 )
 
 func Open(cfg config.DBConfig) (*gorm.DB, error) {
@@ -27,4 +28,8 @@ func Open(cfg config.DBConfig) (*gorm.DB, error) {
 	sqlDB.SetConnMaxLifetime(30 * time.Minute)
 
 	return g, nil
+}
+
+func Migrate(db *gorm.DB) {
+	db.AutoMigrate(&models.User{})
 }

@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import RateLimiter from "./utils/rateLimiter";
+import proxyTo from "./utils/proxyTo";
 
 dotenv.config();
 
@@ -9,27 +10,13 @@ const PORT = process.env.PORT || 3000;
 
 const app = express();
 
-// const limits: {
-//   endpointPrefix: string;
-//   limit: number;
-//   window: LimitWindow;
-//   windowCount?: number;
-// }[] = [
-//   {
-//     endpointPrefix: "/auth",
-//     limit: 10,
-//     window: "Seconds",
-//   },
-// ];
-
 app.use(
   cors({
     origin: "*",
   }),
 );
 
-// limiters
-const AuthLimiter = new RateLimiter("Hours", 10, 2);
+const AuthLimiter = new RateLimiter("Seconds", 10, 10);
 
 app.use((req, res, next) => {
   if (req.url.startsWith("/auth")) {
@@ -43,20 +30,10 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/users", (_, res) => {
-  res.json({
-    users: [
-      { name: "Younnes tailba", age: 29 },
-      { name: "Oussama tailba", age: 28 },
-      { name: "Khalid tailba", age: 18 },
-      { name: "Abde Eladim tailba", age: 23 },
-    ],
-  });
-});
-
-app.get(/.*/, (_, res) => {
-  res.send("Hello there");
-});
+app.use("/auth", proxyTo({ host: "auth", port: 3000 }));
+app.use("/chat", proxyTo({ host: "chat", port: 3000 }));
+app.use("/live", proxyTo({ host: "live", port: 3000 }));
+app.use("/vod", proxyTo({ host: "vod", port: 3000 }));
 
 app.listen(PORT, () => {
   console.log(`Application listing on port: ${PORT}`);

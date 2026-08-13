@@ -20,6 +20,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error Connecting to the database: %v\n", err)
 	}
+	db.Migrate(database)
 
 	router := routes.GetRouter(database)
 

@@ -4,10 +4,13 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"os"
+	"strconv"
+	"time"
 
 	"gorm.io/gorm"
+	"twitch.ousta.dev/auth/internal/middleware"
 	"twitch.ousta.dev/auth/internal/services"
+	"twitch.ousta.dev/auth/internal/types"
 	"twitch.ousta.dev/auth/internal/utils"
 )
 
@@ -23,39 +26,139 @@ func GetAuthHandlers(db *gorm.DB) *AuthHandler {
 	}
 }
 
-type SigninBody struct {
-	Username             string  `json:"username"`
-	Email                string  `json:"email"`
-	Passowrd             string  `json:"password"`
-	PassowrdConfirmation string  `json:"password_confirmation"`
-	Phone                string  `json:"phone"`
-	ISStreamer           bool    `json:"is_streamer"`
-	Avatar               os.File `json:"avatar"`
-	Description          string  `json:"description"`
-}
-
-type LoginBody struct {
-	Login    string `json:"login"`
-	Password string `json:"password"`
-}
-
 func (ah AuthHandler) Signin(w http.ResponseWriter, r *http.Request) {
-	var signinBody SigninBody
-
+	var signinBody types.SigninBody
 	json.NewDecoder(r.Body).Decode(&signinBody)
+	defer r.Body.Close()
 
-	utils.WriteJSON(w, signinBody)
+	// validate date
+	isValide := utils.ValidateAndSendResponce(w, signinBody)
+	if !isValide {
+		return
+	}
+	// send data to the service and get the responce
+	createdUser, err := ah.services.CreateUser(signinBody)
+	// give the user the feedback
+	if err != nil {
+		utils.ServerErrorResponceJSON(w, err.Error())
+		return
+	}
+
+	// if user send avatar, send it to the storage service //upload_avatar avatar
+	// alse send create_folder username
+
+	// JWT
+	token, err := utils.GenerateToken(createdUser.ID)
+	if err != nil {
+		utils.ServerErrorResponceJSON(w, err.Error())
+	}
+
+	// save token on storage cookies
+	cookie := http.Cookie{
+		Name:     "session_token",
+		Value:    token,
+		Path:     "/",
+		Expires:  time.Now().Add(12 * time.Hour),
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteLaxMode,
+	}
+	http.SetCookie(w, &cookie)
+
+	utils.SuccessResponceJSON(
+		w,
+		map[string]any{"user": createdUser, "token": token},
+	)
 }
 
 func (ah AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
-	var loginBody LoginBody
-
+	var loginBody types.LoginBody
 	json.NewDecoder(r.Body).Decode(&loginBody)
 
-	utils.WriteJSON(w, loginBody)
+	isValid := utils.ValidateAndSendResponce(w, loginBody)
+	if !isValid {
+		return
+	}
+
+	user, err := ah.services.GetUserByLogIn(loginBody.Login)
+	if err != nil {
+		utils.ServerErrorResponceJSON(w, err.Error())
+		return
+	}
+
+	// validate password
+	passwordCheck := utils.CheckPasswordHash(loginBody.Password, user.PassowrdHash)
+	if !passwordCheck {
+		utils.BadRequestJSON(
+			w,
+			map[string]any{"message": "Credential are not valide"},
+		)
+		return
+	}
+
+	token, err := utils.GenerateToken(user.ID)
+	if err != nil {
+		utils.ServerErrorResponceJSON(w, err.Error())
+	}
+
+	cookie := http.Cookie{
+		Name:     "session_token",
+		Value:    token,
+		Path:     "/",
+		Expires:  time.Now().Add(12 * time.Hour),
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteLaxMode,
+	}
+	http.SetCookie(w, &cookie)
+
+	utils.SuccessResponceJSON(w, user)
 }
 
 func (ah AuthHandler) LogOut(w http.ResponseWriter, r *http.Request) {
+	cookie := http.Cookie{
+		Name:     "session_token",
+		Value:    "",
+		Path:     "/",
+		Expires:  time.Now().Add(1 * time.Second),
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteLaxMode,
+	}
+	http.SetCookie(w, &cookie)
+
+	utils.SuccessResponceJSON(w, map[string]string{"message": "User was logged out with success"})
 }
 
-func (ah AuthHandler) VerifyToken(w http.ResponseWriter, r *http.Request) {}
+func (ah AuthHandler) VerifyToken(w http.ResponseWriter, r *http.Request) {
+	id := middleware.GetIDFromContext(r)
+
+	valUint, err := strconv.ParseUint(id, 10, 16)
+	if err != nil {
+		return
+	}
+
+	user, err := ah.services.GetUserByID(uint(valUint))
+	if err != nil {
+		utils.ServerErrorResponceJSON(w, err.Error())
+		return
+	}
+
+	token, err := utils.GenerateToken(user.ID)
+	if err != nil {
+		utils.ServerErrorResponceJSON(w, err.Error())
+	}
+
+	cookie := http.Cookie{
+		Name:     "session_token",
+		Value:    token,
+		Path:     "/",
+		Expires:  time.Now().Add(12 * time.Hour),
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteLaxMode,
+	}
+	http.SetCookie(w, &cookie)
+
+	utils.SuccessResponceJSON(w, user)
+}
