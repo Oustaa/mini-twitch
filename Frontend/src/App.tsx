@@ -1,14 +1,36 @@
+import { ComponentPropsProvider } from "@kousta-ui/components";
+import { Route, Routes } from "react-router";
+
+import Layout from "./Components/Layout";
+import AuthLayout from "./Components/AuthLayout";
+
+import Home from "./pages/Home";
+import Browse from "./pages/Browse";
+import Following from "./pages/Following";
+
+import { BsX } from "react-icons/bs";
+
 function App() {
   return (
-    <>
-      <h1>Hello there</h1>
-      <p>
-        Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eaque ipsum
-        nesciunt omnis ducimus, error iusto mollitia quas eius incidunt
-        perferendis fugit rerum doloremque reiciendis doloribus numquam harum
-        porro velit delectus?
-      </p>
-    </>
+    <ComponentPropsProvider
+      modal={{ closeIcon: <BsX size={18} /> }}
+      button={{}}
+    >
+      <Routes>
+        <Route element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="/browse" element={<Browse />} />
+          <Route
+            path="/following"
+            element={
+              <AuthLayout>
+                <Following />
+              </AuthLayout>
+            }
+          />
+        </Route>
+      </Routes>
+    </ComponentPropsProvider>
   );
 }
 

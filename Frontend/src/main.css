@@ -1,1 +1,28 @@
 @import "tailwindcss";
+
+:root {
+  /* button { */
+  /*   --kui-rounded: 9; */
+  /* } */
+
+  --kui-rounded: 0.4;
+
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 500;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.kui-label {
+  font-size: 0.75rem !important;
+}
+
+.kui-input {
+  padding-inline: 0.5rem !important;
+  padding-block: 0.5rem !important;
+  font-size: 0.75rem !important;
+}

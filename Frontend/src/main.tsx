@@ -1,20 +1,22 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import "./main.css";
 import App from "./App.tsx";
 
-fetch("http://localhost:4001/users")
-  .then((resp) => {
-    console.log(resp);
-    return resp.json();
-  })
-  .then((data) => {
-    console.log(data);
-  })
-  .catch(console.error);
+import { BrowserRouter } from "react-router";
+
+import { Provider as ReduxProvider } from "react-redux";
+import { store } from "./app/store.ts";
+
+import "./main.css";
+import "@kousta-ui/components/esm/index.css";
+import "@kousta-ui/table/esm/index.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <App />
+    <ReduxProvider store={store}>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </ReduxProvider>
   </StrictMode>,
 );
