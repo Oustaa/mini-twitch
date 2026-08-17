@@ -1,11 +1,10 @@
-import { useState, type FC } from "react";
+import { type FC } from "react";
 
 import { Button, Modal } from "@kousta-ui/components";
-import { useDisclosure } from "@kousta-ui/hooks";
-import Login from "./login";
-import Signin from "./signin";
-import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { closeAuthModal, openAuthModal } from "../../app/slices/uiSlice";
+import Login from "./components/login";
+import Signin from "./components/signin";
+import { useAppDispatch, useAppSelector } from "@store/hooks";
+import { closeAuthModal, openAuthModal } from "@store/slices/uiSlice";
 
 export type FormType = "login" | "signin";
 

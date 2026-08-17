@@ -1,18 +1,24 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import path from "path";
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
-    // Force a single React copy — required when consuming npm-linked
-    // packages, otherwise each linked @kousta-ui/* package can resolve its
-    // own nested react/react-dom and hooks break with "Invalid hook call".
     dedupe: ["react", "react-dom"],
+    alias: {
+      "@": path.resolve(import.meta.dirname, "src"),
+      "@features": path.resolve(import.meta.dirname, "src/features"),
+      "@hooks": path.resolve(import.meta.dirname, "src/hooks"),
+      "@store": path.resolve(import.meta.dirname, "src/store"),
+      "@components": path.resolve(import.meta.dirname, "src/components"),
+      "@utils": path.resolve(import.meta.dirname, "src/utils"),
+      "@pages": path.resolve(import.meta.dirname, "src/pages"),
+      "@type": path.resolve(import.meta.dirname, "src/types"),
+    },
   },
   optimizeDeps: {
-    // Don't pre-bundle/cache the linked packages — Vite's dep optimizer
-    // otherwise snapshots them once and won't notice source rebuilds.
     exclude: [
       "@kousta-ui/components",
       "@kousta-ui/hooks",
@@ -21,7 +27,6 @@ export default defineConfig({
     ],
   },
   server: {
-    // Allow serving files from the symlink targets outside this project root.
     fs: { allow: [".."] },
   },
 });

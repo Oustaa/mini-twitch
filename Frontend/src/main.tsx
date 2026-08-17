@@ -5,7 +5,7 @@ import App from "./App.tsx";
 import { BrowserRouter } from "react-router";
 
 import { Provider as ReduxProvider } from "react-redux";
-import { store } from "./app/store.ts";
+import { store } from "./store";
 
 import "./main.css";
 import "@kousta-ui/components/esm/index.css";

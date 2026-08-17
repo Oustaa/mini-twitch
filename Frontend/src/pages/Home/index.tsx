@@ -1,11 +1,10 @@
 import type { FC } from "react";
-import Main from "../../Ui/Main";
-import Chat from "../../Ui/Chat";
+import Chat from "@features/Chat";
 
 const Home: FC = () => {
   return (
     <>
-      <Main />
+      {/* <Main /> */}
       <Chat />
     </>
   );

@@ -1,7 +1,8 @@
 import type { FC } from "react";
-import Sidebar from "../Ui/Sidebar";
 import { Outlet } from "react-router";
-import Navbar from "../Ui/Navbar";
+
+import Navbar from "@features/Navbar";
+import Sidebar from "@features/Sidebar";
 
 const Layout: FC = () => {
   return (

@@ -9,7 +9,7 @@ interface CounterState {
 }
 
 const initialState: CounterState = {
-  sidebarOpen: true,
+  sidebarOpen: !!Number(localStorage.getItem("sidebarOpen")),
   authModal: false,
 };
 
@@ -20,12 +20,15 @@ const uiSlice = createSlice({
     // sidebar
     openSidebar(state) {
       state.sidebarOpen = true;
+      localStorage.setItem("sidebarOpen", "1");
     },
     closeSidebar(state) {
       state.sidebarOpen = false;
+      localStorage.setItem("sidebarOpen", "0");
     },
     toggleSidebar(state) {
       state.sidebarOpen = !state.sidebarOpen;
+      localStorage.setItem("sidebarOpen", state.sidebarOpen ? "1" : "0");
     },
     // auth modal
     openAuthModal(state, action: PayloadAction<AuthMode>) {

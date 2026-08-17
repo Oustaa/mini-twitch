@@ -1,13 +1,16 @@
 import { useCallback, useState, type FC } from "react";
-import axois from "axios";
 import { Input, FormElement, Button } from "@kousta-ui/components";
 import { FcGoogle } from "react-icons/fc";
-import { setAuthMode } from "../../app/slices/uiSlice";
-import { useAppDispatch } from "../../app/hooks";
+import { closeAuthModal, setAuthMode } from "@store/slices/uiSlice";
+import { useAppDispatch } from "@store/hooks";
+import { login } from "@features/Auth/authSlice";
+import { api } from "@utils/ApiInstance";
 
 const Login: FC = () => {
   const dispatch = useAppDispatch();
   const [form, setForm] = useState({ login: "", password: "" });
+  const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   const onChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -20,12 +23,23 @@ const Login: FC = () => {
 
   const longin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const response = await axois.post("http://localhost:4001/auth/login", form);
-    console.log({ response });
+    setLoading(true);
+    setError("");
 
-    const data = response.data;
+    try {
+      const response = await api.post("auth/login", form);
 
-    console.log(data);
+      console.log(response.data);
+      if (response.status === 200) {
+        dispatch(login({ user: response.data }));
+        dispatch(closeAuthModal());
+      }
+    } catch (e) {
+      console.log(e);
+      setError(e.response.data.body.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -33,7 +47,8 @@ const Login: FC = () => {
       <form onSubmit={longin} className="space-y-4">
         <FormElement>
           <Input
-            label="Username / Email"
+            label="Log in"
+            placeholder="Username / Email"
             name="login"
             type="text"
             value={form.login}
@@ -45,17 +60,23 @@ const Login: FC = () => {
             label="Password"
             name="password"
             type="password"
+            placeholder="password"
             value={form.password}
             onChange={onChange}
           />
         </FormElement>
-
+        {error && (
+          <div className="bg-red-50 p-2 rounded-sm">
+            <span className="text-sm text-red-500">{error}</span>
+          </div>
+        )}
         <Button
           style={{ width: "100%", borderRadius: 2000 }}
           variant={form.login && form.password ? "primary" : "neutral"}
           type="submit"
           disabled={!form.login || !form.password}
           size="sm"
+          loading={loading}
         >
           Login
         </Button>
@@ -77,8 +98,7 @@ before:content-[''] before:absolute before:right-[53%] before:left-0 before:h-[0
               <Button
                 style={{ width: "100%", borderRadius: 2000 }}
                 variant="neutral-light"
-                type="submit"
-                disabled
+                type="button"
                 size="sm"
               >
                 <div className="flex justify-center items-center gap-2">
@@ -91,8 +111,7 @@ before:content-[''] before:absolute before:right-[53%] before:left-0 before:h-[0
               <Button
                 style={{ width: "100%", borderRadius: 2000 }}
                 variant="neutral-light"
-                type="submit"
-                disabled
+                type="button"
                 size="sm"
               >
                 <div className="flex justify-center items-center gap-2">
@@ -104,8 +123,7 @@ before:content-[''] before:absolute before:right-[53%] before:left-0 before:h-[0
               <Button
                 style={{ width: "100%", borderRadius: 2000 }}
                 variant="neutral-light"
-                type="submit"
-                disabled
+                type="button"
                 size="sm"
               >
                 <div className="flex justify-center items-center gap-2">
@@ -118,12 +136,11 @@ before:content-[''] before:absolute before:right-[53%] before:left-0 before:h-[0
                 style={{
                   width: "100%",
                   borderRadius: 2000,
-                  color: "var(--kui-primary-600)",
                 }}
                 onClick={() => {
                   dispatch(setAuthMode("signin"));
                 }}
-                variant="neutral-light"
+                variant="primary-link"
                 type="submit"
                 size="sm"
               >

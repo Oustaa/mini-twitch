@@ -1,6 +1,6 @@
 import { type FC } from "react";
-import { useAppDispatch } from "../../app/hooks";
-import { setAuthMode } from "../../app/slices/uiSlice";
+import { useAppDispatch } from "@store/hooks";
+import { setAuthMode } from "@store/slices/uiSlice";
 
 const Signin: FC = () => {
   const dispatch = useAppDispatch();
