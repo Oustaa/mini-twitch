@@ -10,7 +10,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var secretKey = []byte(os.Getenv("JWT_SECRET_KEY"))
+var secretKey = []byte(os.Getenv("JWT_TOKEN"))
 
 type CustomClaims struct {
 	UserID string `json:"user_id"`
@@ -18,6 +18,7 @@ type CustomClaims struct {
 }
 
 func GenerateToken(userID uint) (string, error) {
+	fmt.Printf("ZBII: %s", secretKey)
 	idStr := strconv.FormatUint(uint64(userID), 10)
 	claims := CustomClaims{
 		UserID: idStr,

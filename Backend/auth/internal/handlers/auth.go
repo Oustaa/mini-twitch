@@ -3,6 +3,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 	"time"
@@ -54,16 +55,16 @@ func (ah AuthHandler) Signin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// save token on storage cookies
-	cookie := http.Cookie{
-		Name:     "session_token",
-		Value:    token,
-		Path:     "/",
-		Expires:  time.Now().Add(12 * time.Hour),
-		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteLaxMode,
-	}
-	http.SetCookie(w, &cookie)
+	// cookie := http.Cookie{
+	// 	Name:     "session_token",
+	// 	Value:    token,
+	// 	Path:     "/",
+	// 	Expires:  time.Now().Add(12 * time.Hour),
+	// 	HttpOnly: true,
+	// 	Secure:   true,
+	// 	SameSite: http.SameSiteLaxMode,
+	// }
+	// http.SetCookie(w, &cookie)
 
 	utils.SuccessResponceJSON(
 		w,
@@ -82,6 +83,14 @@ func (ah AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	user, err := ah.services.GetUserByLogIn(loginBody.Login)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			utils.BadRequestJSON(
+				w,
+				map[string]any{"message": "Credential are not valide"},
+			)
+			return
+		}
+
 		utils.ServerErrorResponceJSON(w, err.Error())
 		return
 	}
@@ -101,18 +110,22 @@ func (ah AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		utils.ServerErrorResponceJSON(w, err.Error())
 	}
 
-	cookie := http.Cookie{
-		Name:     "session_token",
-		Value:    token,
-		Path:     "/",
-		Expires:  time.Now().Add(12 * time.Hour),
-		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteLaxMode,
-	}
-	http.SetCookie(w, &cookie)
+	// cookie := http.Cookie{
+	// 	Name:     "session_token",
+	// 	Value:    token,
+	// 	Path:     "/",
+	// 	Expires:  time.Now().Add(7 * 24 * time.Hour),
+	// 	HttpOnly: true,
+	// 	Secure:   true,
+	// 	SameSite: http.SameSiteLaxMode,
+	// }
+	//
+	// http.SetCookie(w, &cookie)
 
-	utils.SuccessResponceJSON(w, user)
+	utils.SuccessResponceJSON(
+		w,
+		map[string]any{"user": user, "token": token},
+	)
 }
 
 func (ah AuthHandler) LogOut(w http.ResponseWriter, r *http.Request) {

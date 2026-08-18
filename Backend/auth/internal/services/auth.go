@@ -3,6 +3,7 @@ package services
 
 import (
 	"context"
+	"strings"
 
 	"gorm.io/gorm"
 	"twitch.ousta.dev/auth/internal/models"
@@ -47,13 +48,13 @@ func (us AuthServices) CreateUser(userInfo types.SigninBody) (*models.User, erro
 	}
 
 	user := models.User{
-		Username:     userInfo.Username,
-		Email:        userInfo.Email,
-		PassowrdHash: passwordHash,
+		Username:          strings.ToLower(userInfo.Username),
+		DisplayedUsername: userInfo.Username,
+		Email:             userInfo.Email,
+		PassowrdHash:      passwordHash,
 
 		Phone:        userInfo.Phone,
 		FolloweCount: 0,
-		ISStreamer:   false,
 		Description:  userInfo.Description,
 	}
 

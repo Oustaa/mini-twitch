@@ -11,9 +11,16 @@ import (
 	"twitch.ousta.dev/auth/internal/middleware"
 )
 
-func funcPlaceholder(w http.ResponseWriter, r *http.Request) {
+func FuncPlaholder(w http.ResponseWriter, r *http.Request) {
 	id := middleware.GetIDFromContext(r)
 	fmt.Fprintf(w, "Hello, It reloaded, user id = %s", id)
+}
+
+func verifyAPIGateway(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println(r.Header.Get("gatewayToken"))
+		next.ServeHTTP(w, r)
+	})
 }
 
 func GetRouter(db *gorm.DB) *chi.Mux {
@@ -21,10 +28,14 @@ func GetRouter(db *gorm.DB) *chi.Mux {
 
 	uh := handlers.GetAuthHandlers(db)
 
-	r.Get("/", funcPlaceholder)
+	r.Get("/", FuncPlaholder)
 
 	r.Post("/signin", uh.Signin)
-	r.Post("/login", uh.Login)
+
+	r.Group(func(r chi.Router) {
+		r.Use(verifyAPIGateway)
+		r.Post("/login", uh.Login)
+	})
 
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.AuthMiddleware)
@@ -32,12 +43,7 @@ func GetRouter(db *gorm.DB) *chi.Mux {
 		r.Post("/logout", uh.LogOut)
 		r.Post("/verify", uh.VerifyToken)
 
-		r.Route("/profile", func(r chi.Router) {
-			r.Get("/", funcPlaceholder)
-			r.Patch("/", funcPlaceholder)
-			r.Get("/request-delete", funcPlaceholder)
-			r.Delete("/", funcPlaceholder)
-		})
+		r.Route("/profile", ProfileRoutes)
 	})
 
 	return r

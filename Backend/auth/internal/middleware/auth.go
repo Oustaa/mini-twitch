@@ -4,6 +4,7 @@ package middleware
 import (
 	"context"
 	"net/http"
+	"strings"
 
 	"twitch.ousta.dev/auth/internal/utils"
 )
@@ -14,15 +15,23 @@ const UserIDKey ContextKey = "userID"
 
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cookie, err := r.Cookie("session_token")
-		if err != nil || cookie.Value == "" {
+		authHeader := r.Header.Get("Authorization")
+
+		if authHeader == "" {
 			http.Error(w, "Unauthorized: Missing or invalid token", http.StatusUnauthorized)
 			return
 		}
 
-		tokenString := cookie.Value
+		const prefix = "Bearer "
 
-		userID, isValid := utils.ValidateToken(tokenString)
+		if !strings.HasPrefix(authHeader, prefix) {
+			http.Error(w, "Invalid authorization format", http.StatusUnauthorized)
+			return
+		}
+
+		token := strings.TrimPrefix(authHeader, prefix)
+
+		userID, isValid := utils.ValidateToken(token)
 		if isValid != nil {
 			http.Error(w, "Unauthorized: Invalid or expired token", http.StatusUnauthorized)
 			return
