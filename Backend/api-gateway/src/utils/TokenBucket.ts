@@ -20,8 +20,6 @@ class TokenBucket {
       this.tokens + elapsed * this.refillRatePerMs,
     );
     this.lastRefill = now;
-
-    console.log(this.tokens);
   }
 
   consume(): boolean {
