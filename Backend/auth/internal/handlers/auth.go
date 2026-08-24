@@ -27,18 +27,22 @@ func GetAuthHandlers(db *gorm.DB) *AuthHandler {
 	}
 }
 
-func (ah AuthHandler) Signin(w http.ResponseWriter, r *http.Request) {
-	var signinBody types.SigninBody
-	json.NewDecoder(r.Body).Decode(&signinBody)
+func (ah AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
+	var signupBody types.SignupBody
+
+	if err := json.NewDecoder(r.Body).Decode(&signupBody); err != nil {
+		utils.BadRequestJSON(w, map[string]any{"message": "Invalid request body"})
+		return
+	}
 	defer r.Body.Close()
 
 	// validate date
-	isValide := utils.ValidateAndSendResponce(w, signinBody)
+	isValide := utils.ValidateAndSendResponce(w, signupBody)
 	if !isValide {
 		return
 	}
 	// send data to the service and get the responce
-	createdUser, err := ah.services.CreateUser(signinBody)
+	createdUser, err := ah.services.CreateUser(signupBody)
 	// give the user the feedback
 	if err != nil {
 		utils.ServerErrorResponceJSON(w, err.Error())
@@ -53,18 +57,6 @@ func (ah AuthHandler) Signin(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.ServerErrorResponceJSON(w, err.Error())
 	}
-
-	// save token on storage cookies
-	// cookie := http.Cookie{
-	// 	Name:     "session_token",
-	// 	Value:    token,
-	// 	Path:     "/",
-	// 	Expires:  time.Now().Add(12 * time.Hour),
-	// 	HttpOnly: true,
-	// 	Secure:   true,
-	// 	SameSite: http.SameSiteLaxMode,
-	// }
-	// http.SetCookie(w, &cookie)
 
 	utils.SuccessResponceJSON(
 		w,

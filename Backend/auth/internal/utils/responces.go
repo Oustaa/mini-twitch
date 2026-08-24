@@ -6,6 +6,14 @@ import (
 	"net/http"
 )
 
+func JSONResponce(w http.ResponseWriter, statusCode int, message string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": message,
+	})
+}
+
 func SuccessResponceJSON(w http.ResponseWriter, body any) {
 	w.Header().Add("content-type", "application/json")
 

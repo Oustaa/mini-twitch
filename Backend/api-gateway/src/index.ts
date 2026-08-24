@@ -9,6 +9,7 @@ import { AppRoutes } from "./routes";
 import compression from "compression";
 import cookieSession from "cookie-session";
 import { axiosAuthInstance } from "./services/auth";
+import axios from "axios";
 
 const app = express();
 
@@ -64,6 +65,27 @@ AppRoutes.routes(app);
 app.use("/chat", proxyTo({ host: "chat", port: 3000 }));
 app.use("/live", proxyTo({ host: "live", port: 3000 }));
 app.use("/vod", proxyTo({ host: "vod", port: 3000 }));
+
+app.use((err: any, _req: Request, res: Response, _: NextFunction) => {
+  if (axios.isAxiosError(err) && err.response) {
+    res.status(err.response.status).json(
+      err.response.data || {
+        success: false,
+        status: err.response.status,
+        message: err.response.data?.message || "Upstream service error",
+      },
+    );
+    return;
+  }
+
+  const statusCode = err.statusCode || 500;
+  res.status(statusCode).json({
+    success: false,
+    status: statusCode,
+    message: err.message || "Internal Server Error",
+    ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
+  });
+});
 
 app.listen(config.PORT, () => {
   console.log(`Application listing on port: ${config.PORT}`);

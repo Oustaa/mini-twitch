@@ -18,7 +18,6 @@ type CustomClaims struct {
 }
 
 func GenerateToken(userID uint) (string, error) {
-	fmt.Printf("ZBII: %s", secretKey)
 	idStr := strconv.FormatUint(uint64(userID), 10)
 	claims := CustomClaims{
 		UserID: idStr,

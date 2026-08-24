@@ -3,7 +3,9 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"strings"
+	"time"
 
 	"gorm.io/gorm"
 	"twitch.ousta.dev/auth/internal/models"
@@ -21,9 +23,9 @@ func GetAuthServices(db *gorm.DB) *AuthServices {
 	}
 }
 
-func (us AuthServices) GetUserByID(id uint) (*models.User, error) {
+func (as AuthServices) GetUserByID(id uint) (*models.User, error) {
 	ctx := context.Background()
-	user, err := gorm.G[models.User](us.db).Where("id = ?", id).First(ctx)
+	user, err := gorm.G[models.User](as.db).Where("id = ?", id).First(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -31,9 +33,9 @@ func (us AuthServices) GetUserByID(id uint) (*models.User, error) {
 	return &user, nil
 }
 
-func (us AuthServices) GetUserByLogIn(login string) (*models.User, error) {
+func (as AuthServices) GetUserByLogIn(login string) (*models.User, error) {
 	ctx := context.Background()
-	user, err := gorm.G[models.User](us.db).Where("email = ?", login).Or("username = ?", login).First(ctx)
+	user, err := gorm.G[models.User](as.db).Where("email = ?", strings.ToLower(login)).Or("username = ?", strings.ToLower(login)).First(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -41,16 +43,22 @@ func (us AuthServices) GetUserByLogIn(login string) (*models.User, error) {
 	return &user, nil
 }
 
-func (us AuthServices) CreateUser(userInfo types.SigninBody) (*models.User, error) {
+func (as AuthServices) CreateUser(userInfo types.SignupBody) (*models.User, error) {
 	passwordHash, err := utils.HashPassword(userInfo.Password)
 	if err != nil {
 		return nil, err
 	}
 
+	birthDay, err := time.Parse("02-01-2006", userInfo.BirthDay)
+	if err != nil {
+		return nil, fmt.Errorf("invalid birth_day format: %w", err)
+	}
+
 	user := models.User{
 		Username:          strings.ToLower(userInfo.Username),
 		DisplayedUsername: userInfo.Username,
-		Email:             userInfo.Email,
+		BirthDay:          birthDay,
+		Email:             strings.ToLower(userInfo.Email),
 		PassowrdHash:      passwordHash,
 
 		Phone:        userInfo.Phone,
@@ -60,7 +68,7 @@ func (us AuthServices) CreateUser(userInfo types.SigninBody) (*models.User, erro
 
 	ctx := context.Background()
 	result := gorm.WithResult()
-	err = gorm.G[models.User](us.db, result).Create(ctx, &user)
+	err = gorm.G[models.User](as.db, result).Create(ctx, &user)
 	if err != nil {
 		return nil, err
 	}

@@ -27,10 +27,12 @@ func GetRouter(db *gorm.DB) *chi.Mux {
 	r := chi.NewRouter()
 
 	uh := handlers.GetAuthHandlers(db)
+	ah := handlers.GetUserHandlers(db)
 
 	r.Get("/", FuncPlaholder)
 
-	r.Post("/signin", uh.Signin)
+	r.Post("/signup", uh.Signup)
+	r.Post("/verify-username", ah.ValidateUniqueUsername)
 
 	r.Group(func(r chi.Router) {
 		r.Use(verifyAPIGateway)

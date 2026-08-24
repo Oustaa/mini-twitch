@@ -38,8 +38,8 @@ services:
     depends_on:
       auth-db:
         condition: service_healthy
-    # ports:
-    #   - "4002:3000"
+    ports:
+      - "4002:3000"
     networks:
       - backend
 

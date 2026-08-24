@@ -18,8 +18,8 @@ export class AuthController extends StaticClass {
     res.status(response.status).json({ user });
   }
 
-  public static async signin(req: Request, res: Response): Promise<void> {
-    const response: AxiosResponse = await authService.signin(req.body);
+  public static async signup(req: Request, res: Response): Promise<void> {
+    const response: AxiosResponse = await authService.signup(req.body);
 
     const { user, token } = response.data;
 
@@ -36,9 +36,7 @@ export class AuthController extends StaticClass {
     res.status(response.status).json(response.data);
   }
 
-  public static async verify(req: Request, res: Response): Promise<void> {
-    console.log("ZBIIIIIIIII", req.session);
-
+  public static async verify(_: Request, res: Response): Promise<void> {
     const response: AxiosResponse = await authService.verify();
 
     res.status(response.status).json(response.data);

@@ -9,10 +9,10 @@ class AuthRoutes {
   }
 
   public route(): Router {
-    this.router.post("/auth/login", AuthController.login);
-    this.router.post("/auth/sigin", AuthController.signin);
-    this.router.post("/auth/logout", authMiddleware, AuthController.logout);
-    this.router.post("/auth/verify", authMiddleware, AuthController.verify);
+    this.router.post("/login", AuthController.login);
+    this.router.post("/signup", AuthController.signup);
+    this.router.post("/logout", authMiddleware, AuthController.logout);
+    this.router.post("/verify", authMiddleware, AuthController.verify);
 
     return this.router;
   }

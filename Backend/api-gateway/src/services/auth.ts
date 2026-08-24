@@ -20,9 +20,9 @@ class AuthService {
     return response;
   }
 
-  async signin(body: unknown) {
+  async signup(body: unknown) {
     const response: AxiosResponse = await axiosAuthInstance.post(
-      "singin",
+      "signup",
       body,
     );
 
