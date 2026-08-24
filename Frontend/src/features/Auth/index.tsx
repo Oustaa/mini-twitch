@@ -2,11 +2,9 @@ import { type FC } from "react";
 
 import { Button, Modal } from "@kousta-ui/components";
 import Login from "./components/login";
-import Signin from "./components/signin";
+import SignUp from "./components/signup";
 import { useAppDispatch, useAppSelector } from "@store/hooks";
 import { closeAuthModal, openAuthModal } from "@store/slices/uiSlice";
-
-export type FormType = "login" | "signin";
 
 const Auth: FC = () => {
   const dispatch = useAppDispatch();
@@ -26,7 +24,7 @@ const Auth: FC = () => {
         closeOnClickOutside={false}
         closeOnClickEsc={false}
       >
-        {authMode === "login" ? <Login /> : <Signin />}
+        {authMode === "login" ? <Login /> : <SignUp />}
       </Modal>
 
       <Button
@@ -43,7 +41,7 @@ const Auth: FC = () => {
         variant="primary"
         style={{ borderRadius: 4000 }}
         onClick={() => {
-          dispatch(openAuthModal("signin"));
+          dispatch(openAuthModal("signup"));
         }}
         size="sm"
       >

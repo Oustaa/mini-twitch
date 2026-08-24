@@ -6,10 +6,15 @@ import { useAppDispatch } from "@store/hooks";
 import { login } from "@features/Auth/authSlice";
 import { api } from "@utils/ApiInstance";
 
-const Login: FC = () => {
+const SignUp: FC = () => {
   const dispatch = useAppDispatch();
-  const [form, setForm] = useState({ login: "", password: "" });
-  const [error, setError] = useState<string>("");
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+    username: "",
+    birth_day: null,
+  });
+  const [_, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
   const onChange = useCallback(
@@ -21,15 +26,14 @@ const Login: FC = () => {
     [form],
   );
 
-  const longin = async (e: React.FormEvent<HTMLFormElement>) => {
+  const signup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
     try {
-      const response = await api.post("auth/login", form);
+      const response = await api.post("auth/sigin", form);
 
-      console.log(response.data);
       if (response.status === 200) {
         dispatch(login({ user: response.data.user }));
         dispatch(closeAuthModal());
@@ -44,45 +48,56 @@ const Login: FC = () => {
 
   return (
     <div>
-      <form onSubmit={longin} className="space-y-4">
+      <form onSubmit={signup} className="space-y-4">
         <FormElement>
           <Input
-            label="Log in"
-            placeholder="Username / Email"
-            name="login"
+            label="Email"
+            placeholder="email"
+            name="email"
             type="text"
-            value={form.login}
+            value={form.email}
+            onChange={onChange}
+          />
+        </FormElement>
+        <FormElement>
+          <Input
+            label="Username"
+            placeholder="username"
+            name="username"
+            type="text"
+            value={form.username}
             onChange={onChange}
           />
         </FormElement>
         <FormElement>
           <Input
             label="Password"
-            name="password"
-            type="password"
             placeholder="password"
+            name="password"
+            type="text"
             value={form.password}
             onChange={onChange}
           />
         </FormElement>
-        {error && (
-          <div className="bg-red-50 p-2 rounded-sm">
-            <span className="text-sm text-red-500">{error}</span>
-          </div>
-        )}
+        <FormElement>
+          <Input
+            label="Birth Day"
+            name="birth_day"
+            type="date"
+            value={form.birth_day}
+            onChange={onChange}
+          />
+        </FormElement>
         <Button
           style={{ width: "100%", borderRadius: 2000 }}
-          variant={form.login && form.password ? "primary" : "neutral"}
           type="submit"
-          disabled={!form.login || !form.password}
           size="sm"
           loading={loading}
         >
-          Login
+          Sign Up
         </Button>
 
         {/* alternative */}
-
         <div className="mt-4">
           <div
             className={`
@@ -103,7 +118,7 @@ before:content-[''] before:absolute before:right-[53%] before:left-0 before:h-[0
               >
                 <div className="flex justify-center items-center gap-2">
                   <FcGoogle size={16} />
-                  <span>Continue with Google</span>
+                  <span>Sign up with Google</span>
                 </div>
               </Button>
             </div>
@@ -115,7 +130,7 @@ before:content-[''] before:absolute before:right-[53%] before:left-0 before:h-[0
                 size="sm"
               >
                 <div className="flex justify-center items-center gap-2">
-                  <span>Continue with Amazon</span>
+                  <span>Sign up with Amazon</span>
                 </div>
               </Button>
             </div>
@@ -127,7 +142,7 @@ before:content-[''] before:absolute before:right-[53%] before:left-0 before:h-[0
                 size="sm"
               >
                 <div className="flex justify-center items-center gap-2">
-                  <span>Continue with Apple</span>
+                  <span>Sign up with Apple</span>
                 </div>
               </Button>
             </div>
@@ -144,7 +159,7 @@ before:content-[''] before:absolute before:right-[53%] before:left-0 before:h-[0
                 type="submit"
                 size="sm"
               >
-                Don't have an account? Sign up
+                Have an account? Login
               </Button>
             </div>
           </div>
@@ -154,4 +169,4 @@ before:content-[''] before:absolute before:right-[53%] before:left-0 before:h-[0
   );
 };
 
-export default Login;
+export default SignUp;
