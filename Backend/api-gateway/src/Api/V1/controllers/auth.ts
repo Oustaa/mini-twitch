@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { StaticClass } from "../utils/StaticClass";
+import { StaticClass } from "../../../utils/StaticClass";
 import { AxiosResponse } from "axios";
 import { authService } from "../services/auth";
 

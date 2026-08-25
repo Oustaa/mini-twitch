@@ -32,3 +32,6 @@ export class AxiosService {
     return instance;
   }
 }
+
+export const axiosAuthInstance: ReturnType<typeof axios.create> =
+  new AxiosService(`${config.AUTH_BASE_URL}`, "auth").axios;

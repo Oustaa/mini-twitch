@@ -7,7 +7,7 @@ import (
 
 	"github.com/go-chi/chi"
 	"gorm.io/gorm"
-	"twitch.ousta.dev/auth/internal/handlers"
+	routesV1 "twitch.ousta.dev/auth/internal/api/v1/routes"
 	"twitch.ousta.dev/auth/internal/middleware"
 )
 
@@ -16,35 +16,16 @@ func FuncPlaholder(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello, It reloaded, user id = %s", id)
 }
 
-func verifyAPIGateway(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println(r.Header.Get("gatewayToken"))
-		next.ServeHTTP(w, r)
-	})
-}
-
 func GetRouter(db *gorm.DB) *chi.Mux {
 	r := chi.NewRouter()
 
-	uh := handlers.GetAuthHandlers(db)
-	ah := handlers.GetUserHandlers(db)
-
 	r.Get("/", FuncPlaholder)
 
-	r.Post("/signup", uh.Signup)
-	r.Post("/verify-username", ah.ValidateUniqueUsername)
+	v1Routes := routesV1.GetV1Routes(db)
+
+	r.Mount("/api/v1", v1Routes)
 
 	r.Group(func(r chi.Router) {
-		r.Use(verifyAPIGateway)
-		r.Post("/login", uh.Login)
-	})
-
-	r.Group(func(r chi.Router) {
-		r.Use(middleware.AuthMiddleware)
-
-		r.Post("/logout", uh.LogOut)
-		r.Post("/verify", uh.VerifyToken)
-
 		r.Route("/profile", ProfileRoutes)
 	})
 

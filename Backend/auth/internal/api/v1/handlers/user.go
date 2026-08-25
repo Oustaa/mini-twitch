@@ -1,23 +1,23 @@
-package handlers
+package handlers_v1
 
 import (
 	"fmt"
 	"net/http"
 
 	"gorm.io/gorm"
-	"twitch.ousta.dev/auth/internal/services"
+	services_V1 "twitch.ousta.dev/auth/internal/api/v1/services"
 	"twitch.ousta.dev/auth/internal/utils"
 )
 
 type UserHandler struct {
 	db       *gorm.DB
-	services services.UserServices
+	services services_V1.UserServices
 }
 
 func GetUserHandlers(db *gorm.DB) *UserHandler {
 	return &UserHandler{
 		db:       db,
-		services: *services.GetUserServices(db),
+		services: *services_V1.GetUserServices(db),
 	}
 }
 

@@ -1,5 +1,5 @@
-// Package handlers
-package handlers
+// Package handlers_v1
+package handlers_v1
 
 import (
 	"encoding/json"
@@ -9,21 +9,21 @@ import (
 	"time"
 
 	"gorm.io/gorm"
+	services_v1 "twitch.ousta.dev/auth/internal/api/v1/services"
 	"twitch.ousta.dev/auth/internal/middleware"
-	"twitch.ousta.dev/auth/internal/services"
 	"twitch.ousta.dev/auth/internal/types"
 	"twitch.ousta.dev/auth/internal/utils"
 )
 
 type AuthHandler struct {
 	db       *gorm.DB
-	services services.AuthServices
+	services services_v1.AuthServices
 }
 
 func GetAuthHandlers(db *gorm.DB) *AuthHandler {
 	return &AuthHandler{
 		db:       db,
-		services: *services.GetAuthServices(db),
+		services: *services_v1.GetAuthServices(db),
 	}
 }
 
@@ -101,18 +101,6 @@ func (ah AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.ServerErrorResponceJSON(w, err.Error())
 	}
-
-	// cookie := http.Cookie{
-	// 	Name:     "session_token",
-	// 	Value:    token,
-	// 	Path:     "/",
-	// 	Expires:  time.Now().Add(7 * 24 * time.Hour),
-	// 	HttpOnly: true,
-	// 	Secure:   true,
-	// 	SameSite: http.SameSiteLaxMode,
-	// }
-	//
-	// http.SetCookie(w, &cookie)
 
 	utils.SuccessResponceJSON(
 		w,

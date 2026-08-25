@@ -8,8 +8,8 @@ import { config } from "./config";
 import { AppRoutes } from "./routes";
 import compression from "compression";
 import cookieSession from "cookie-session";
-import { axiosAuthInstance } from "./services/auth";
 import axios from "axios";
+import { axiosAuthInstance } from "./utils/axios";
 
 const app = express();
 

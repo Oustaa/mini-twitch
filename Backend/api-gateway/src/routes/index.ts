@@ -1,10 +1,8 @@
 import { Application } from "express";
-import { authRoutes } from "./auth";
-import { userRoutes } from "./user";
+import { V1Routes } from "../Api/V1/routes/v1Routes";
 
 export class AppRoutes {
   public static routes(app: Application) {
-    app.use("/auth", authRoutes.route());
-    app.use("/user", userRoutes.route());
+    app.use("/api/v1", V1Routes.routes());
   }
 }

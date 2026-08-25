@@ -1,0 +1,16 @@
+import { AxiosResponse } from "axios";
+import { axiosAuthInstance } from "../../../utils/axios";
+
+class UserService {
+  constructor() {}
+
+  async verifyUsername(username?: string) {
+    const response: AxiosResponse = await axiosAuthInstance.post(
+      `api/v1/verify-username?username=${username}`,
+    );
+
+    return response;
+  }
+}
+
+export const userService: UserService = new UserService();
