@@ -11,7 +11,9 @@ export class AuthController extends StaticClass {
   public static async login(req: Request, res: Response): Promise<void> {
     const response: AxiosResponse = await authService.login(req.body);
 
-    const { user, token } = response.data;
+    const {
+      data: { user, token },
+    } = response.data;
 
     req.session = { jwt: token };
 

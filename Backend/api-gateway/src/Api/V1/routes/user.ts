@@ -8,7 +8,7 @@ class UserRoutes {
   }
 
   public route(): Router {
-    this.router.post("/verify-username", UserController.verifyUsername);
+    this.router.get("/verify-username", UserController.verifyUsername);
 
     return this.router;
   }

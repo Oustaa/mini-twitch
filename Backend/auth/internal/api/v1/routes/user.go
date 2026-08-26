@@ -9,5 +9,5 @@ import (
 func UserRouter(r *chi.Mux, db *gorm.DB) {
 	uh := handlers_v1.GetUserHandlers(db)
 
-	r.Post("/verify-username", uh.ValidateUniqueUsername)
+	r.Get("/verify-username", uh.ValidateUniqueUsername)
 }

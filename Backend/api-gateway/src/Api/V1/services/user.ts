@@ -5,7 +5,7 @@ class UserService {
   constructor() {}
 
   async verifyUsername(username?: string) {
-    const response: AxiosResponse = await axiosAuthInstance.post(
+    const response: AxiosResponse = await axiosAuthInstance.get(
       `api/v1/verify-username?username=${username}`,
     );
 

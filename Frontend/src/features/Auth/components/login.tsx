@@ -5,6 +5,8 @@ import { closeAuthModal, setAuthMode } from "@store/slices/uiSlice";
 import { useAppDispatch } from "@store/hooks";
 import { login } from "@features/Auth/authSlice";
 import { api } from "@utils/ApiInstance";
+import Alert from "@/components/Alert";
+import axios from "axios";
 
 const Login: FC = () => {
   const dispatch = useAppDispatch();
@@ -34,9 +36,15 @@ const Login: FC = () => {
         dispatch(login({ user: response.data.user }));
         dispatch(closeAuthModal());
       }
-    } catch (e) {
-      console.log(e);
-      setError(e.response.data.body.message);
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response) {
+        setError(
+          err.response.data?.message ??
+            "Something went wrong. Please try again.",
+        );
+      } else {
+        setError("Network error. Please check your connection and try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -44,6 +52,7 @@ const Login: FC = () => {
 
   return (
     <div>
+      {error && <Alert type="Error" title={error} />}
       <form onSubmit={longin} className="space-y-4">
         <FormElement>
           <Input
@@ -65,11 +74,6 @@ const Login: FC = () => {
             onChange={onChange}
           />
         </FormElement>
-        {error && (
-          <div className="bg-red-50 p-2 rounded-sm">
-            <span className="text-sm text-red-500">{error}</span>
-          </div>
-        )}
         <Button
           style={{ width: "100%", borderRadius: 2000 }}
           variant={form.login && form.password ? "primary" : "neutral"}

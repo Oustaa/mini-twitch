@@ -1,10 +1,16 @@
 import { useCallback, useState, type FC } from "react";
 import { Input, FormElement, Button } from "@kousta-ui/components";
+import { useDebounceCallback } from "@kousta-ui/hooks";
 import { FcGoogle } from "react-icons/fc";
 import { closeAuthModal, setAuthMode } from "@store/slices/uiSlice";
 import { useAppDispatch } from "@store/hooks";
 import { login } from "@features/Auth/authSlice";
 import { api } from "@utils/ApiInstance";
+import { toBackEndTime } from "@/utils/date-time";
+import { getValidateUsername } from "../_requests";
+import { FaMinusCircle } from "react-icons/fa";
+import Alert from "@/components/Alert";
+import axios from "axios";
 
 const SignUp: FC = () => {
   const dispatch = useAppDispatch();
@@ -14,8 +20,11 @@ const SignUp: FC = () => {
     username: "",
     birth_day: null,
   });
-  const [_, setError] = useState<string>("");
+  const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const verifyUsername = getValidateUsername();
+
+  const [usernameError, setUsernameError] = useState<string | null>(null);
 
   const onChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,21 +35,46 @@ const SignUp: FC = () => {
     [form],
   );
 
+  const debounceUsernameCheck = useDebounceCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      onChange(e);
+      try {
+        await verifyUsername(e.target.value);
+
+        setUsernameError(null);
+      } catch (error) {
+        if (error.status) {
+          setUsernameError(error.response.data.message);
+        }
+      }
+    },
+
+    300,
+  );
+
   const signup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
     try {
-      const response = await api.post("auth/sigin", form);
+      const response = await api.post("auth/signup", {
+        ...form,
+        birth_day: toBackEndTime(new Date(form.birth_day)),
+      });
 
-      if (response.status === 200) {
-        dispatch(login({ user: response.data.user }));
-        dispatch(closeAuthModal());
+      setError(null);
+      dispatch(login({ user: response.data.user }));
+      dispatch(closeAuthModal());
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response) {
+        setError(
+          err.response.data?.message ??
+            "Something went wrong. Please try again.",
+        );
+      } else {
+        setError("Network error. Please check your connection and try again.");
       }
-    } catch (e) {
-      console.log(e);
-      setError(e.response.data.body.message);
     } finally {
       setLoading(false);
     }
@@ -48,24 +82,26 @@ const SignUp: FC = () => {
 
   return (
     <div>
+      {error && <Alert type="Error" title={error} />}
+
       <form onSubmit={signup} className="space-y-4">
-        <FormElement>
-          <Input
-            label="Email"
-            placeholder="email"
-            name="email"
-            type="text"
-            value={form.email}
-            onChange={onChange}
-          />
-        </FormElement>
         <FormElement>
           <Input
             label="Username"
             placeholder="username"
             name="username"
             type="text"
-            value={form.username}
+            onChange={debounceUsernameCheck}
+            errors={usernameError ? [usernameError] : null}
+          />
+        </FormElement>
+        <FormElement>
+          <Input
+            label="Email"
+            placeholder="email@abc.def"
+            name="email"
+            type="email"
+            value={form.email}
             onChange={onChange}
           />
         </FormElement>
@@ -93,6 +129,7 @@ const SignUp: FC = () => {
           type="submit"
           size="sm"
           loading={loading}
+          disabled={!!usernameError}
         >
           Sign Up
         </Button>
@@ -153,10 +190,10 @@ before:content-[''] before:absolute before:right-[53%] before:left-0 before:h-[0
                   borderRadius: 2000,
                 }}
                 onClick={() => {
-                  dispatch(setAuthMode("signup"));
+                  dispatch(setAuthMode("login"));
                 }}
                 variant="primary-link"
-                type="submit"
+                type="button"
                 size="sm"
               >
                 Have an account? Login

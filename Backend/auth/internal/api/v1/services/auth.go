@@ -23,6 +23,19 @@ func GetAuthServices(db *gorm.DB) *AuthServices {
 	}
 }
 
+func (as AuthServices) CheckUniqueEmail(email string) (bool, error) {
+	ctx := context.Background()
+
+	count, err := gorm.G[models.User](as.db).
+		Where("email = ?", strings.ToLower(email)).
+		Count(ctx, "*")
+	if err != nil {
+		return false, err
+	}
+
+	return count > 0, nil
+}
+
 func (as AuthServices) GetUserByID(id uint) (*models.User, error) {
 	ctx := context.Background()
 	user, err := gorm.G[models.User](as.db).Where("id = ?", id).First(ctx)

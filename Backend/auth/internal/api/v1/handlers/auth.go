@@ -41,6 +41,17 @@ func (ah AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	if !isValide {
 		return
 	}
+
+	emailExists, err := ah.services.CheckUniqueEmail(signupBody.Email)
+	if err != nil {
+		utils.ServerErrorResponceJSON(w, err.Error())
+		return
+	}
+	if emailExists {
+		utils.JSONResponce(w, http.StatusBadRequest, "Email Already in use")
+		return
+	}
+
 	// send data to the service and get the responce
 	createdUser, err := ah.services.CreateUser(signupBody)
 	// give the user the feedback
@@ -76,10 +87,7 @@ func (ah AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	user, err := ah.services.GetUserByLogIn(loginBody.Login)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			utils.BadRequestJSON(
-				w,
-				map[string]any{"message": "Credential are not valide"},
-			)
+			utils.JSONResponce(w, http.StatusBadRequest, "Credential are not valide")
 			return
 		}
 
@@ -90,10 +98,7 @@ func (ah AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	// validate password
 	passwordCheck := utils.CheckPasswordHash(loginBody.Password, user.PassowrdHash)
 	if !passwordCheck {
-		utils.BadRequestJSON(
-			w,
-			map[string]any{"message": "Credential are not valide"},
-		)
+		utils.JSONResponce(w, http.StatusBadRequest, "Credential are not valide")
 		return
 	}
 

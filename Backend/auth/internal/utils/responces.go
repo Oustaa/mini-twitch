@@ -2,46 +2,50 @@ package utils
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
-func JSONResponce(w http.ResponseWriter, statusCode int, message string) {
+type apiResponse struct {
+	Success bool   `json:"success"`
+	Message string `json:"message,omitempty"`
+	Data    any    `json:"data,omitempty"`
+	Errors  any    `json:"errors,omitempty"`
+}
+
+func WriteJSON(w http.ResponseWriter, statusCode int, resp apiResponse) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
-	json.NewEncoder(w).Encode(map[string]string{
-		"message": message,
-	})
+	json.NewEncoder(w).Encode(resp)
 }
 
-func SuccessResponceJSON(w http.ResponseWriter, body any) {
-	w.Header().Add("content-type", "application/json")
-
-	err := json.NewEncoder(w).Encode(body)
-	if err != nil {
-		http.Error(w, "Error While Formating the responce", http.StatusInternalServerError)
-		ServerErrorResponceJSON(w, fmt.Sprintf("Error While Formating the responce, Error: %s", err.Error()))
-	}
+func SuccessResponceJSON(w http.ResponseWriter, data any) {
+	WriteJSON(w, http.StatusOK, apiResponse{Success: true, Data: data})
 }
 
-func BadRequestJSON(w http.ResponseWriter, body any) {
-	w.Header().Add("content-type", "application/json")
-	w.WriteHeader(http.StatusBadRequest)
-
-	err := json.NewEncoder(w).Encode(map[string]any{
-		"code":    http.StatusBadRequest,
-		"message": "Validation error",
-		"body":    body,
+func BadRequestJSON(w http.ResponseWriter, errs any) {
+	WriteJSON(w, http.StatusBadRequest, apiResponse{
+		Success: false,
+		Message: "Validation error",
+		Errors:  errs,
 	})
-	if err != nil {
-		http.Error(w, "Error While Formating the responce", http.StatusInternalServerError)
-	}
 }
 
 func ServerErrorResponceJSON(w http.ResponseWriter, message ...string) {
+	msg := "Internal Server Error"
 	if len(message) > 0 {
-		http.Error(w, message[0], http.StatusInternalServerError)
-	} else {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		msg = message[0]
 	}
+	WriteJSON(w, http.StatusInternalServerError, apiResponse{Success: false, Message: msg})
 }
+
+func JSONResponce(w http.ResponseWriter, statusCode int, message string) {
+	WriteJSON(w, statusCode, apiResponse{Success: statusCode < 400, Message: message})
+}
+
+/**
+  This Should have the following:
+		- SuccessJson: sends message + possible body
+		- BadRequestJson: sends messaga
+		- ValidationErrorJson: sends messaga + errors
+		- ServerError: sends message + error stack ( for api-gateway loggin later )
+*/
