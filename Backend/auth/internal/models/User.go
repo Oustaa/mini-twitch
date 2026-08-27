@@ -14,6 +14,7 @@ type User struct {
 	BirthDay             time.Time      `json:"birth_day"`
 	LastTimeUnameUpdated *time.Time     `json:"last_time_uname_updated"`
 	Email                string         `json:"email" gorm:"uniqueIndex;size:255"`
+	EmailValid           bool           `json:"email_valid" gorm:"uniqueIndex;size:255"`
 	PassowrdHash         string         `json:"-"`
 	Phone                string         `json:"phone"`
 	Avatar               string         `json:"avatar"`

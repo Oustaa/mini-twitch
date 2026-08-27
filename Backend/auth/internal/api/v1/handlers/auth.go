@@ -31,7 +31,7 @@ func (ah AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	var signupBody types.SignupBody
 
 	if err := json.NewDecoder(r.Body).Decode(&signupBody); err != nil {
-		utils.BadRequestJSON(w, map[string]any{"message": "Invalid request body"})
+		utils.ValidationErrorJson(w, map[string]any{"message": "Invalid request body"})
 		return
 	}
 	defer r.Body.Close()
@@ -44,7 +44,7 @@ func (ah AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 
 	emailExists, err := ah.services.CheckUniqueEmail(signupBody.Email)
 	if err != nil {
-		utils.ServerErrorResponceJSON(w, err.Error())
+		utils.InternalErrorJSON(w, err)
 		return
 	}
 	if emailExists {
@@ -56,7 +56,7 @@ func (ah AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	createdUser, err := ah.services.CreateUser(signupBody)
 	// give the user the feedback
 	if err != nil {
-		utils.ServerErrorResponceJSON(w, err.Error())
+		utils.InternalErrorJSON(w, err)
 		return
 	}
 
@@ -66,7 +66,7 @@ func (ah AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	// JWT
 	token, err := utils.GenerateToken(createdUser.ID)
 	if err != nil {
-		utils.ServerErrorResponceJSON(w, err.Error())
+		utils.InternalErrorJSON(w, err)
 	}
 
 	utils.SuccessResponceJSON(
@@ -91,7 +91,7 @@ func (ah AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		utils.ServerErrorResponceJSON(w, err.Error())
+		utils.InternalErrorJSON(w, err)
 		return
 	}
 
@@ -104,7 +104,7 @@ func (ah AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	token, err := utils.GenerateToken(user.ID)
 	if err != nil {
-		utils.ServerErrorResponceJSON(w, err.Error())
+		utils.InternalErrorJSON(w, err)
 	}
 
 	utils.SuccessResponceJSON(
@@ -114,6 +114,7 @@ func (ah AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ah AuthHandler) LogOut(w http.ResponseWriter, r *http.Request) {
+	// TODO: This should be gateway responsability
 	cookie := http.Cookie{
 		Name:     "session_token",
 		Value:    "",
@@ -138,15 +139,16 @@ func (ah AuthHandler) VerifyToken(w http.ResponseWriter, r *http.Request) {
 
 	user, err := ah.services.GetUserByID(uint(valUint))
 	if err != nil {
-		utils.ServerErrorResponceJSON(w, err.Error())
+		utils.InternalErrorJSON(w, err)
 		return
 	}
 
 	token, err := utils.GenerateToken(user.ID)
 	if err != nil {
-		utils.ServerErrorResponceJSON(w, err.Error())
+		utils.InternalErrorJSON(w, err)
 	}
 
+	// TODO: This should be gateway responsability
 	cookie := http.Cookie{
 		Name:     "session_token",
 		Value:    token,

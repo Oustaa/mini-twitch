@@ -68,22 +68,25 @@ app.use("/vod", proxyTo({ host: "vod", port: 3000 }));
 
 app.use((err: any, _req: Request, res: Response, _: NextFunction) => {
   if (axios.isAxiosError(err) && err.response) {
-    res.status(err.response.status).json(
-      err.response.data || {
-        success: false,
-        status: err.response.status,
-        message: err.response.data?.message || "Upstream service error",
-      },
-    );
+    console.error("[upstream error]", {
+      status: err.response.status,
+      url: err.config?.url,
+      data: err.response.data,
+    });
+
+    res.status(err.response.status).json({
+      success: false,
+      message: err.response.data?.message || "Upstream service error",
+    });
     return;
   }
 
+  console.error(err.stack);
   const statusCode = err.statusCode || 500;
   res.status(statusCode).json({
     success: false,
     status: statusCode,
     message: err.message || "Internal Server Error",
-    ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
   });
 });
 

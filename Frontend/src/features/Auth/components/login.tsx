@@ -79,7 +79,6 @@ const Login: FC = () => {
           variant={form.login && form.password ? "primary" : "neutral"}
           type="submit"
           disabled={!form.login || !form.password}
-          size="sm"
           loading={loading}
         >
           Login
@@ -103,7 +102,6 @@ before:content-[''] before:absolute before:right-[53%] before:left-0 before:h-[0
                 style={{ width: "100%", borderRadius: 2000 }}
                 variant="neutral-light"
                 type="button"
-                size="sm"
               >
                 <div className="flex justify-center items-center gap-2">
                   <FcGoogle size={16} />
@@ -116,7 +114,6 @@ before:content-[''] before:absolute before:right-[53%] before:left-0 before:h-[0
                 style={{ width: "100%", borderRadius: 2000 }}
                 variant="neutral-light"
                 type="button"
-                size="sm"
               >
                 <div className="flex justify-center items-center gap-2">
                   <span>Continue with Amazon</span>
@@ -128,7 +125,6 @@ before:content-[''] before:absolute before:right-[53%] before:left-0 before:h-[0
                 style={{ width: "100%", borderRadius: 2000 }}
                 variant="neutral-light"
                 type="button"
-                size="sm"
               >
                 <div className="flex justify-center items-center gap-2">
                   <span>Continue with Apple</span>
@@ -146,7 +142,6 @@ before:content-[''] before:absolute before:right-[53%] before:left-0 before:h-[0
                 }}
                 variant="primary-link"
                 type="submit"
-                size="sm"
               >
                 Don't have an account? Sign up
               </Button>

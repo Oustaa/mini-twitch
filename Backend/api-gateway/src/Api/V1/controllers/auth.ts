@@ -12,7 +12,7 @@ export class AuthController extends StaticClass {
     const response: AxiosResponse = await authService.login(req.body);
 
     const {
-      data: { user, token },
+      body: { user, token },
     } = response.data;
 
     req.session = { jwt: token };
@@ -23,11 +23,7 @@ export class AuthController extends StaticClass {
   public static async signup(req: Request, res: Response): Promise<void> {
     const response: AxiosResponse = await authService.signup(req.body);
 
-    const { user, token } = response.data;
-
-    req.session = { jwt: token };
-
-    res.status(response.status).json({ user });
+    res.status(response.status).json({});
   }
 
   public static async logout(req: Request, res: Response): Promise<void> {

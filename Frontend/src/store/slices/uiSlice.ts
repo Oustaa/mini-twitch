@@ -1,6 +1,6 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
-export type AuthMode = "login" | "signup" | undefined;
+export type AuthMode = "login" | "signup" | "signedup" | undefined;
 
 interface CounterState {
   sidebarOpen: boolean;

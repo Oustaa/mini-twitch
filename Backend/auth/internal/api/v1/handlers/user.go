@@ -27,19 +27,21 @@ func (uh UserHandler) ValidateUniqueUsername(w http.ResponseWriter, r *http.Requ
 	fmt.Println(username)
 
 	if username == "" {
-		utils.JSONResponce(w, http.StatusBadRequest, "username query parameter is required")
+		utils.BadRequestJSON(w, "username query parameter is required")
 		return
 	}
 
 	exist, err := uh.services.CheckUniqeUsername(username)
 	if err != nil {
-		utils.JSONResponce(w, http.StatusInternalServerError, fmt.Sprintf("User Handler (ValidateUniqueUsername): %s", err.Error()))
+		utils.InternalErrorJSON(w, err)
 		return
 	}
 
 	if exist {
-		utils.JSONResponce(w, http.StatusBadRequest, fmt.Sprintf("Username %s Already in use.", username))
+		utils.ValidationErrorJson(w,
+			map[string]any{"username": false, "message": fmt.Sprintf("Username %s already in use, Try another one", username)},
+		)
 		return
 	}
-	utils.JSONResponce(w, http.StatusOK, "Username available")
+	utils.SuccessResponceJSON(w, "Username available")
 }

@@ -8,44 +8,46 @@ import (
 type apiResponse struct {
 	Success bool   `json:"success"`
 	Message string `json:"message,omitempty"`
-	Data    any    `json:"data,omitempty"`
+	Body    any    `json:"body,omitempty"`
 	Errors  any    `json:"errors,omitempty"`
+	Debug   string `json:"debug,omitempty"`
 }
 
-func WriteJSON(w http.ResponseWriter, statusCode int, resp apiResponse) {
+func writeJSON(w http.ResponseWriter, statusCode int, resp apiResponse) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 	json.NewEncoder(w).Encode(resp)
 }
 
-func SuccessResponceJSON(w http.ResponseWriter, data any) {
-	WriteJSON(w, http.StatusOK, apiResponse{Success: true, Data: data})
+func SuccessResponceJSON(w http.ResponseWriter, body any) {
+	writeJSON(w, http.StatusOK, apiResponse{Success: true, Body: body})
 }
 
-func BadRequestJSON(w http.ResponseWriter, errs any) {
-	WriteJSON(w, http.StatusBadRequest, apiResponse{
+func BadRequestJSON(w http.ResponseWriter, message string) {
+	if message == "" {
+		message = "Bad Request"
+	}
+
+	writeJSON(w, http.StatusBadRequest, apiResponse{
 		Success: false,
-		Message: "Validation error",
+		Message: message,
+	})
+}
+
+func ValidationErrorJson(w http.ResponseWriter, errs any) {
+	writeJSON(w, http.StatusBadRequest, apiResponse{
+		Success: false,
 		Errors:  errs,
 	})
 }
 
-func ServerErrorResponceJSON(w http.ResponseWriter, message ...string) {
-	msg := "Internal Server Error"
-	if len(message) > 0 {
-		msg = message[0]
-	}
-	WriteJSON(w, http.StatusInternalServerError, apiResponse{Success: false, Message: msg})
+func InternalErrorJSON(w http.ResponseWriter, err error) {
+	resp := apiResponse{Success: false, Message: "Internal Server Error"}
+	resp.Debug = err.Error()
+
+	writeJSON(w, http.StatusInternalServerError, resp)
 }
 
 func JSONResponce(w http.ResponseWriter, statusCode int, message string) {
-	WriteJSON(w, statusCode, apiResponse{Success: statusCode < 400, Message: message})
+	writeJSON(w, statusCode, apiResponse{Success: statusCode < 400, Message: message})
 }
-
-/**
-  This Should have the following:
-		- SuccessJson: sends message + possible body
-		- BadRequestJson: sends messaga
-		- ValidationErrorJson: sends messaga + errors
-		- ServerError: sends message + error stack ( for api-gateway loggin later )
-*/

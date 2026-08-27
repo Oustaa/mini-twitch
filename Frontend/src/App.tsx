@@ -12,7 +12,7 @@ import { useEffect } from "react";
 import { api } from "@utils/ApiInstance";
 import { useAppDispatch } from "@store/hooks";
 import { login } from "@features/Auth/authSlice";
-import type { AuthUser } from "@types/auth";
+import type { AuthUser } from "@type/auth";
 import ProtectedRoutes from "./components/ProtectedRoutes";
 import PageNoteFound from "./components/PageNotFound";
 
@@ -40,7 +40,9 @@ function App() {
   return (
     <ComponentPropsProvider
       modal={{ closeIcon: <BsX size={18} /> }}
-      button={{}}
+      button={{
+        size: "sm",
+      }}
     >
       <Routes>
         <Route element={<Layout />}>

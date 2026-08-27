@@ -15,7 +15,7 @@ func ValidateAndSendResponce(w http.ResponseWriter, body any) bool {
 		var invalidValidationError *validator.InvalidValidationError
 
 		if errors.As(err, &invalidValidationError) {
-			ServerErrorResponceJSON(w, err.Error())
+			InternalErrorJSON(w, err)
 			return false
 		}
 
@@ -25,7 +25,7 @@ func ValidateAndSendResponce(w http.ResponseWriter, body any) bool {
 			validationErrors[fieldName] = append(validationErrors[fieldName], err.Tag())
 		}
 
-		BadRequestJSON(w, validationErrors)
+		ValidationErrorJson(w, validationErrors)
 
 		return false
 	}
