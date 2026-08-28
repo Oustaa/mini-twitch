@@ -10,4 +10,5 @@ func UserRouter(r *chi.Mux, db *gorm.DB) {
 	uh := handlers_v1.GetUserHandlers(db)
 
 	r.Get("/verify-username", uh.ValidateUniqueUsername)
+	r.Get("/get-username-suggestions", uh.GetUsernameSuggestions)
 }

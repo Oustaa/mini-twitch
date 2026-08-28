@@ -19,6 +19,7 @@ type User struct {
 	Phone                string         `json:"phone"`
 	Avatar               string         `json:"avatar"`
 	Banner               string         `json:"banner"`
+	IsLive               bool           `json:"is_live"`
 	FolloweCount         int32          `json:"followe_count" gorm:"default:0"`
 	Description          string         `json:"description"`
 	AccentColor          string         `json:"accent_color"`

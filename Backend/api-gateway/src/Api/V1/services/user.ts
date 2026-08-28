@@ -11,6 +11,14 @@ class UserService {
 
     return response;
   }
+
+  async getUsernameSuggestions(query?: string) {
+    const response: AxiosResponse = await axiosAuthInstance.get(
+      `api/v1/get-username-suggestions?query=${query}`,
+    );
+
+    return response;
+  }
 }
 
 export const userService: UserService = new UserService();

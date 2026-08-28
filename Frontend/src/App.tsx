@@ -6,6 +6,7 @@ import Layout from "@components/Layout";
 import Home from "@pages/Home";
 import Browse from "@pages/Browse";
 import Following from "@pages/Following";
+import UserProfile from "@pages/UserProfile";
 
 import { BsX } from "react-icons/bs";
 import { useEffect } from "react";
@@ -56,6 +57,7 @@ function App() {
               </ProtectedRoutes>
             }
           />
+          <Route path=":username" element={<UserProfile />} />
           <Route path="*" element={<PageNoteFound />} />
         </Route>
       </Routes>

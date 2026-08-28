@@ -4,6 +4,7 @@ package services_v1
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -14,26 +15,38 @@ import (
 )
 
 type AuthServices struct {
-	db *gorm.DB
+	db         *gorm.DB
+	emailIndex *utils.Node
 }
 
 func GetAuthServices(db *gorm.DB) *AuthServices {
-	return &AuthServices{
-		db: db,
+	as := &AuthServices{
+		db:         db,
+		emailIndex: utils.NewSearchTree(),
 	}
+
+	err := as.warmIndexes()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return as
 }
 
-func (as AuthServices) CheckUniqueEmail(email string) (bool, error) {
-	ctx := context.Background()
-
-	count, err := gorm.G[models.User](as.db).
-		Where("email = ?", strings.ToLower(email)).
-		Count(ctx, "*")
-	if err != nil {
-		return false, err
+func (as AuthServices) warmIndexes() error {
+	var emails []string
+	if err := as.db.Model(&models.User{}).Pluck("email", &emails).Error; err != nil {
+		return err
+	}
+	for _, email := range emails {
+		as.emailIndex.Add(email)
 	}
 
-	return count > 0, nil
+	return nil
+}
+
+func (as AuthServices) CheckUniqueEmail(email string) bool {
+	return as.emailIndex.Search(email)
 }
 
 func (as AuthServices) GetUserByID(id uint) (*models.User, error) {

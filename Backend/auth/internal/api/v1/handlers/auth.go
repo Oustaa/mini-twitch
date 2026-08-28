@@ -42,12 +42,7 @@ func (ah AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	emailExists, err := ah.services.CheckUniqueEmail(signupBody.Email)
-	if err != nil {
-		utils.InternalErrorJSON(w, err)
-		return
-	}
-	if emailExists {
+	if ah.services.CheckUniqueEmail(signupBody.Email) {
 		utils.JSONResponce(w, http.StatusBadRequest, "Email Already in use")
 		return
 	}
